@@ -156,19 +156,16 @@ class Compiler
 		if ($files === null) {
 			$files = $this->collection->getFiles();
 		}
-
 		// load content
-		$content = '';
+		$result = '';
 		foreach ($files as $file) {
-			$content .= PHP_EOL . $this->loadFile($file);
+			$fileContent = PHP_EOL . $this->loadFile($file);
+			foreach($this->filters as $filter) {
+				$fileContent = call_user_func($filter, $fileContent, $this, $file);
+			}
+			$result .= $fileContent;
 		}
-
-		// apply filters
-		foreach ($this->filters as $filter) {
-			$content = call_user_func($filter, $content, $this);
-		}
-
-		return $content;
+		return $result;
 	}
 
 	/**
